@@ -17,6 +17,7 @@ import java.util.Optional;
 public class AuthController {
 
     @Autowired
+
     private UserService userService;
 
     @PostMapping("/register")
