@@ -1,4 +1,6 @@
 package org.example.forum_platform.entity;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
@@ -36,78 +38,49 @@ public class User {
     private LocalDateTime createTime = LocalDateTime.now();
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
+    @JsonBackReference  // 回引用，序列化 Post.author 时不会序列化 posts，从而避免循环
     private List<Post> posts;
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
     private List<Comment> comments;
 
-    public String getPassword() {
-        return password;
-    }
 
-    public void setPassword(String encode) {
-        this.password = encode;
-    }
 
-    public void setRole(String user) {
-        this.role = user;
-    }
+    // ===== Getter 和 Setter =====
 
-    public String getUsername() {
-        return username;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public String getRole() {
-        return role;
-    }
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 
-    public String getId() {
-        return String.valueOf(id);
-    }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-    public Serializable getPhone() {
-        return phone;
-    }
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
 
-    public Object getAvatar() {
-        return avatar;
-    }
+    public String getAvatar() { return avatar; }
+    public void setAvatar(String avatar) { this.avatar = avatar; }
 
-    public Object getEmail() {
-        return email;
-    }
+    public Integer getPoints() { return points; }
+    public void setPoints(Integer points) { this.points = points; }
 
-    public Object getPoints() {
-        return points;
-    }
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
 
-    public Object getLevel() {
-        return level;
-    }
+    public Integer getLevel() { return level; }
+    public void setLevel(Integer level) { this.level = level; }
 
-    public void setUsername(String trim) {
-        this.username = trim;
-    }
+    public LocalDateTime getCreateTime() { return createTime; }
+    public void setCreateTime(LocalDateTime createTime) { this.createTime = createTime; }
 
-    public void setPoints(int i) {
-        this.points = i;
-    }
+    public List<Post> getPosts() { return posts; }
+    public void setPosts(List<Post> posts) { this.posts = posts; }
 
-    public void setLevel(int i) {
-        this.level = i;
-    }
-
-    public void setEmail(String trim) {
-        this.email = trim;
-    }
-
-    public void setPhone(String trim) {
-        this.phone = trim;
-    }
-
-    // getters and setters
+    public List<Comment> getComments() { return comments; }
+    public void setComments(List<Comment> comments) { this.comments = comments; }
 }

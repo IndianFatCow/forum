@@ -1,5 +1,6 @@
 package org.example.forum_platform.controller;
 
+import org.example.forum_platform.dto.PostDTO;
 import org.example.forum_platform.entity.Post;
 import org.example.forum_platform.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,30 +14,37 @@ public class PostController {
 
     @Autowired
     private PostService postService;
-
+    // 发布帖子
     @PostMapping
-    public Post createPost(@RequestBody Post post) {
+    public Post createPost(@RequestBody PostDTO post) {
         return postService.createPost(post);
     }
-
+    // 编辑帖子
     @PutMapping("/{id}")
     public Post updatePost(@PathVariable Long id, @RequestBody Post post) {
         post.setId(id);
         return postService.updatePost(post);
     }
-
+    // 删除帖子
     @DeleteMapping("/{id}")
     public void deletePost(@PathVariable Long id) {
         postService.deletePost(id);
     }
-
+    // 获取版块下的所有帖子
     @GetMapping("/board/{boardId}")
     public List<Post> getPostsByBoard(@PathVariable Long boardId) {
         return postService.getPostsByBoard(boardId);
     }
-
+    // 获取单个帖子
     @GetMapping("/{id}")
     public Post getPost(@PathVariable Long id) {
         return postService.getPostById(id).orElse(null);
     }
+    //获取所有帖子
+    @GetMapping
+    public List<Post> getAllPosts() {
+        // This method assumes that there is a method in PostService to get all posts
+        return postService.getAllPosts();
+    }
+
 }

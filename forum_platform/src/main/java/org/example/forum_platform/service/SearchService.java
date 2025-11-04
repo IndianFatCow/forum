@@ -17,11 +17,11 @@ public class SearchService {
 
     @Autowired
     private UserRepository userRepository;
-
+    // 搜索帖子
     public List<Post> searchPosts(String keyword) {
         return postRepository.findByTitleContainingOrContentContaining(keyword, keyword);
     }
-
+    // 搜索用户
     public List<User> searchUsers(String keyword) {
         return userRepository.findByUsernameContaining(keyword);
     }

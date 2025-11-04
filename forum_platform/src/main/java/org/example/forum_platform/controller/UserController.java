@@ -34,4 +34,11 @@ public class UserController {
         // 这里可以调用 userService 的搜索方法
         return ResponseEntity.ok("搜索用户: " + keyword);
     }
+    //查询用户积分等级
+    @GetMapping("/{id}/points")
+    public ResponseEntity<Integer> getUserPoints(@PathVariable Long id) {
+        // 这里可以调用 userService 的方法获取用户积分等级
+
+        return  ResponseEntity.ok(userService.getUserPoints(id)) ;
+    }
 }
