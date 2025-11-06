@@ -1,5 +1,6 @@
 package org.example.forum_platform.controller;
 
+import org.example.forum_platform.dto.UserUpdateDTO;
 import org.example.forum_platform.entity.User;
 import org.example.forum_platform.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,18 @@ public class UserController {
     private UserService userService;
 
 
-    // 更新资料
+    // 方式一：安全更新资料（推荐）
+    @PutMapping("/{id}/profile")
+    public ResponseEntity<?> updateUserProfile(@PathVariable Long id, @RequestBody UserUpdateDTO updateDTO) {
+        try {
+            User updatedUser = userService.updateUserProfile(id, updateDTO);
+            return ResponseEntity.ok(updatedUser);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // 完整更新资料
     @PutMapping("/{id}")
     public User updateProfile(@PathVariable Long id, @RequestBody User user) {
         user.setId(id);
