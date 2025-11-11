@@ -8,22 +8,23 @@ import java.security.Key;
 
 @Component
 public class JwtTokenUtil {
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private final long EXPIRATION = 1000 * 60 * 60 * 24; // 24小时
 
-    // 生成 token
+    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private final long EXPIRATION = 1000 * 60 * 60 * 24;   // Token有效期24小时
+
+    // 生成Token（包含用户名、用户ID和角色信息）
     public String generateToken(String username, Long userId, String role) {
         return Jwts.builder()
-                .setSubject(username)//设置用户名
-                .claim("userId", userId)                 // 用户ID
-                .claim("role", role)                     // 用户角色
-                .setIssuedAt(new Date())
+                .setSubject(username)
+                .claim("userId", userId)          // 用户ID
+                .claim("role", role)              // 用户角色
+                .setIssuedAt(new Date())          // 签发时间
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
                 .signWith(key)
                 .compact();
     }
 
-    // 解析 token 获取用户名
+    // 从Token中解析出用户名
     public String getUsernameFromToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
@@ -33,7 +34,7 @@ public class JwtTokenUtil {
                 .getSubject();
     }
 
-    // 验证 token 是否有效
+    // 验证Token是否有效
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
@@ -43,3 +44,4 @@ public class JwtTokenUtil {
         }
     }
 }
+

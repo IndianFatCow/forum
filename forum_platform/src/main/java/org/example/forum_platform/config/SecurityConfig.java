@@ -25,14 +25,17 @@ public class SecurityConfig {
 
     @Autowired
     private SecurityUserDetailsService userDetailsService;
-    @Autowired  // 添加这个注入
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    @Autowired
+    private JwtAuthenticationFilter jwtAuthenticationFilter; // JWT 过滤器注入
+
+    // 定义密码加密方式
     @Bean
-    public PasswordEncoder passwordEncoder() {//对密码进行加密
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    // 构建认证管理器
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
@@ -41,12 +44,17 @@ public class SecurityConfig {
         return builder.build();
     }
 
+    // 安全过滤器链配置
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                // 关闭 CSRF（跨站请求伪造）保护
                 .csrf(csrf -> csrf.disable())
+                // 启用 CORS 跨域配置
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                // 禁用 session，使用 JWT 无状态认证
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // 配置接口权限
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register").permitAll()
@@ -54,24 +62,22 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 );
 
-
-        // 加入 JWT 过滤器
-        http.addFilterBefore(jwtAuthenticationFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
+        // 将 JWT 过滤器加入 Spring Security 过滤链
+        http.addFilterBefore(jwtAuthenticationFilter,
+                org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
+    // 跨域访问配置
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-
-        // 方案二：使用 allowedOriginPatterns（推荐）
-        config.setAllowedOriginPatterns(List.of("*"));
-
+        config.setAllowedOriginPatterns(List.of("*"));  // 允许所有源访问
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Accept"));
         config.setAllowCredentials(true);
-        config.setMaxAge(3600L);
+        config.setMaxAge(3600L);  // 缓存时间（秒）
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
