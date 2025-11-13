@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,11 +18,39 @@ public class NotificationController {
     @Autowired
     private NotificationService notificationService;
 
-    // 获取当前用户的通知
     @GetMapping("/{userId}")
-    public ResponseEntity<List<Notification>> getUserNotifications(@PathVariable Long userId) {
-        return ResponseEntity.ok(notificationService.getUserNotifications(userId));
+    public ResponseEntity<?> getUserNotifications(@PathVariable Long userId) {
+        try {
+            List<Map<String, Object>> result = notificationService.getUserNotifications(userId)
+                    .stream()
+                    .map(n -> {
+                        Map<String, Object> map = new HashMap<>();
+                        map.put("message","success");
+                        map.put("id", n.getId());
+                        map.put("type", n.getType());
+                        map.put("content", n.getContent());
+                        map.put("isRead", n.getIsRead());
+                        map.put("createTime", n.getCreateTime());
+                        map.put("senderId", n.getSender() != null ? n.getSender().getId() : null);
+                        return map;
+                    })
+                    .toList();
+
+            return ResponseEntity.ok(result);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", e.getMessage()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "success", false,
+                    "message", "获取通知失败: " + e.getMessage()
+            ));
+        }
     }
+
+
 
     // 发送通知（可用于管理员公告、私信、系统提醒）
     @PostMapping("/send")
