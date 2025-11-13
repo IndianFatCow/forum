@@ -24,16 +24,39 @@ public class NotificationController {
 
     // 发送通知（可用于管理员公告、私信、系统提醒）
     @PostMapping("/send")
-    public ResponseEntity<Notification> sendNotification(
-            @RequestBody Map<String, Object> payload) {
-        Long senderId = ((Number) payload.get("senderId")).longValue();
-        Long receiverId = ((Number) payload.get("receiverId")).longValue();
-        String type = (String) payload.get("type");
-        String content = (String) payload.get("content");
+    public ResponseEntity<?> sendNotification(@RequestBody Map<String, Object> payload) {
+        try {
+            Long senderId = ((Number) payload.get("senderId")).longValue();
+            Long receiverId = ((Number) payload.get("receiverId")).longValue();
+            String type = (String) payload.get("type");
+            String content = (String) payload.get("content");
 
-        Notification n = notificationService.sendNotification(senderId, receiverId, type, content);
-        return ResponseEntity.ok(n);
+            Notification n = notificationService.sendNotification(senderId, receiverId, type, content);
+
+            // 仅返回指定字段
+            Map<String, Object> response = Map.of(
+                    "message","success",
+                    "id", n.getId(),
+                    "type", n.getType(),
+                    "content", n.getContent(),
+                    "isRead", n.getIsRead(),
+                    "createTime", n.getCreateTime()
+            );
+
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", e.getMessage()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "success", false,
+                    "message", "通知发送失败: " + e.getMessage()
+            ));
+        }
     }
+
 
     // 标记为已读
     @PutMapping("/{id}/read")
